@@ -32,10 +32,13 @@ jobs:
             --exclude "app.zip"
 
       - name: Deploy via Kudu ZIP deploy
+        env:
+          DEPLOY_USER: ${{ secrets.AZURE_DEPLOY_USER }}
+          DEPLOY_PASS: ${{ secrets.AZURE_DEPLOY_PASS }}
         run: |
           curl -X POST \
             "https://codesentinel-ai-review.scm.azurewebsites.net/api/zipdeploy" \
-            -u "${{ secrets.AZURE_DEPLOY_USER }}:${{ secrets.AZURE_DEPLOY_PASS }}" \
+            -u "${DEPLOY_USER}:${DEPLOY_PASS}" \
             -H "Content-Type: application/zip" \
             --data-binary @app.zip \
             --fail \
