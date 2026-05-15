@@ -36,17 +36,14 @@ jobs:
           DEPLOY_USER: ${{ secrets.AZURE_DEPLOY_USER }}
           DEPLOY_PASS: ${{ secrets.AZURE_DEPLOY_PASS }}
         run: |
-          echo "User prefix: ${DEPLOY_USER:0:10}..."
-          echo "Pass length: ${#DEPLOY_PASS}"
           HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
             -X POST \
             "https://codesentinel-ai-review.scm.azurewebsites.net/api/zipdeploy" \
             -u "${DEPLOY_USER}:${DEPLOY_PASS}" \
             -H "Content-Type: application/zip" \
             --data-binary @app.zip)
-          echo "HTTP status: $HTTP"
           if [ "$HTTP" != "200" ] && [ "$HTTP" != "202" ]; then
             echo "Deployment failed with HTTP $HTTP"
             exit 1
           fi
-          echo "Deployment complete ✓"
+          echo "Deployment complete ✓ (HTTP $HTTP)"
