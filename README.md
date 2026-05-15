@@ -4,9 +4,7 @@ CodeSentinel is a multi-agent code review assistant that analyzes source code fo
 
 ## Authors
 
-- Hoan Le — Hoan.Le@student.oulu.fi — Student ID: 2504960
-- Khoa Dinh — t0dida00@students.oamk.fi — Student ID: 2508783
-- Van Nguyen — Van.M.Nguyen@student.oulu.fi — Student ID: 2506205
+- Hoan Le 
 
 ## Tech Stack
 
