@@ -373,5 +373,25 @@ def download():
     return jsonify({"error": "Report not found"}), 404
 
 
+SAMPLE_FILES = {
+    "test_sample.py",
+    "test_sample.js",
+    "TestSample.java",
+    "TestSample.cs",
+}
+
+
+@app.route("/sample/<filename>")
+def download_sample(filename):
+    """Download a sample test file."""
+    if filename not in SAMPLE_FILES:
+        return jsonify({"error": "File not found"}), 404
+    tests_dir = os.path.join(os.path.dirname(__file__), "tests")
+    file_path = os.path.join(tests_dir, filename)
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found"}), 404
+    return send_file(file_path, as_attachment=True, download_name=filename)
+
+
 if __name__ == "__main__":
     app.run(debug=False, host="127.0.0.1", port=5000)

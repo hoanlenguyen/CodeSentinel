@@ -1,4 +1,6 @@
 ag2
 openai
 flask
+gunicorn
+python-dotenv
 

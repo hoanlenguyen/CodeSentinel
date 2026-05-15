@@ -4,403 +4,655 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeSentinel — AI Code Review</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-    <div class="container">
-        <!-- Left Panel: Input Controls -->
-        <div class="left-panel">
-            <h1>CodeSentinel</h1>
-            <p class="subtitle">AI-Powered Multi-Language Code Review</p>
+<body class="bg-slate-950 font-sans antialiased">
 
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="inline">Inline</button>
-                <button class="tab-btn" data-tab="file">File</button>
-                <button class="tab-btn" data-tab="project">Project</button>
+<div class="flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden">
+
+    <!-- ═══════════════════════════════════════════════════
+         LEFT PANEL — Dark sidebar
+    ════════════════════════════════════════════════════ -->
+    <aside class="w-full lg:w-[440px] lg:shrink-0 bg-slate-900 flex flex-col lg:h-screen lg:overflow-y-auto border-r border-slate-800">
+
+        <!-- Brand -->
+        <div class="px-7 py-5 border-b border-slate-800 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-600/40 shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold text-white tracking-tight leading-none">CodeSentinel</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">AI-Powered Multi-Language Code Review</p>
+                </div>
             </div>
+        </div>
 
-            <!-- Inline Tab -->
-            <div id="inline" class="tab-content active">
-                <label>Paste your code:</label>
-                <textarea id="inline-code" rows="15" placeholder="Paste code here..."></textarea>
+        <!-- Tabs -->
+        <div class="px-5 pt-5 shrink-0">
+            <div class="flex bg-slate-800/70 rounded-xl p-1 gap-1 border border-slate-700/50">
+                <button class="tab-btn flex-1 py-2 px-2 text-sm font-semibold rounded-lg transition-all duration-200 text-white bg-gradient-to-r from-violet-600 to-indigo-600 shadow-md shadow-violet-600/30" data-tab="inline">
+                    <span class="hidden sm:inline">✦ </span>Inline
+                </button>
+                <button class="tab-btn flex-1 py-2 px-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-all duration-200" data-tab="file">
+                    File
+                </button>
+                <button class="tab-btn flex-1 py-2 px-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-all duration-200" data-tab="project">
+                    Project
+                </button>
+            </div>
+        </div>
 
-                <label>Language (optional):</label>
-                <select id="inline-language">
-                    <option value="auto">Auto-detect</option>
-                    <option value="Python">Python</option>
-                    <option value="JavaScript">JavaScript</option>
-                    <option value="TypeScript">TypeScript</option>
-                    <option value="Java">Java</option>
-                    <option value="C#">C#</option>
-                    <option value="Go">Go</option>
-                    <option value="Rust">Rust</option>
-                    <option value="Ruby">Ruby</option>
-                    <option value="PHP">PHP</option>
-                    <option value="Kotlin">Kotlin</option>
-                    <option value="Swift">Swift</option>
-                    <option value="C++">C++</option>
-                    <option value="SQL">SQL</option>
-                    <option value="Shell">Shell</option>
-                    <option value="Other">Other</option>
+        <!-- Form content -->
+        <div class="px-5 py-5 flex flex-col flex-1">
+
+            <!-- ── Inline Tab ── -->
+            <div id="inline" class="tab-content flex flex-col flex-1">
+                <label class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Source Code</label>
+                <textarea id="inline-code" rows="15" placeholder="// Paste your code here..."
+                    class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl font-mono text-sm text-slate-200 placeholder-slate-600 resize-y focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition leading-relaxed"></textarea>
+
+                <label class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-4 mb-2">Language</label>
+                <select id="inline-language"
+                    class="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition">
+                    <option value="auto">🔍 Auto-detect</option>
+                    <option value="Python">🐍 Python</option>
+                    <option value="JavaScript">⚡ JavaScript</option>
+                    <option value="TypeScript">🔷 TypeScript</option>
+                    <option value="Java">☕ Java</option>
+                    <option value="C#">🔵 C#</option>
+                    <option value="Go">🐹 Go</option>
+                    <option value="Rust">⚙️ Rust</option>
+                    <option value="Ruby">💎 Ruby</option>
+                    <option value="PHP">🐘 PHP</option>
+                    <option value="Kotlin">🟣 Kotlin</option>
+                    <option value="Swift">🍎 Swift</option>
+                    <option value="C++">⚡ C++</option>
+                    <option value="SQL">🗃️ SQL</option>
+                    <option value="Shell">🖥️ Shell</option>
+                    <option value="Other">📄 Other</option>
                 </select>
             </div>
 
-            <!-- File Tab -->
-            <div id="file" class="tab-content">
-                <label>Select a file:</label>
-                <input type="file" id="file-input">
+            <!-- ── File Tab ── -->
+            <div id="file" class="tab-content hidden flex-col">
 
-                <label>Language (optional):</label>
-                <select id="file-language">
-                    <option value="auto">Auto-detect</option>
-                    <option value="Python">Python</option>
-                    <option value="JavaScript">JavaScript</option>
-                    <option value="TypeScript">TypeScript</option>
-                    <option value="Java">Java</option>
-                    <option value="C#">C#</option>
-                    <option value="Go">Go</option>
-                    <option value="Rust">Rust</option>
-                    <option value="Ruby">Ruby</option>
-                    <option value="PHP">PHP</option>
-                    <option value="Kotlin">Kotlin</option>
-                    <option value="Swift">Swift</option>
-                    <option value="C++">C++</option>
-                    <option value="SQL">SQL</option>
-                    <option value="Shell">Shell</option>
-                    <option value="Other">Other</option>
+                <!-- Drop zone -->
+                <label class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Upload File</label>
+                <div id="drop-zone"
+                    class="border-2 border-dashed border-slate-700 rounded-xl p-7 text-center hover:border-violet-500 hover:bg-violet-500/5 transition-all cursor-pointer group">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-800 group-hover:bg-violet-500/20 flex items-center justify-center mx-auto mb-3 transition-colors">
+                        <svg class="drop-icon w-6 h-6 text-slate-500 group-hover:text-violet-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                    </div>
+                    <p class="drop-label text-sm text-slate-400 group-hover:text-slate-300 transition-colors font-medium">Drop a file or click to browse</p>
+                    <p id="file-name-display" class="text-xs text-slate-600 mt-1">No file selected</p>
+                    <input type="file" id="file-input" class="hidden">
+                </div>
+
+                <!-- Sample files -->
+                <div class="mt-5">
+                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-3">
+                        Sample Files <span class="normal-case font-normal text-slate-600">— click to download &amp; test</span>
+                    </p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="/sample/test_sample.py" download
+                            class="flex items-center gap-2.5 px-3 py-2.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 hover:border-yellow-500/40 rounded-xl transition-all group">
+                            <span class="text-xl leading-none">🐍</span>
+                            <div class="min-w-0">
+                                <p class="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors">Python</p>
+                                <p class="text-[11px] text-slate-600 truncate">test_sample.py</p>
+                            </div>
+                        </a>
+                        <a href="/sample/test_sample.js" download
+                            class="flex items-center gap-2.5 px-3 py-2.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 hover:border-yellow-400/40 rounded-xl transition-all group">
+                            <span class="text-xl leading-none">⚡</span>
+                            <div class="min-w-0">
+                                <p class="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors">JavaScript</p>
+                                <p class="text-[11px] text-slate-600 truncate">test_sample.js</p>
+                            </div>
+                        </a>
+                        <a href="/sample/TestSample.java" download
+                            class="flex items-center gap-2.5 px-3 py-2.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 hover:border-orange-500/40 rounded-xl transition-all group">
+                            <span class="text-xl leading-none">☕</span>
+                            <div class="min-w-0">
+                                <p class="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors">Java</p>
+                                <p class="text-[11px] text-slate-600 truncate">TestSample.java</p>
+                            </div>
+                        </a>
+                        <a href="/sample/TestSample.cs" download
+                            class="flex items-center gap-2.5 px-3 py-2.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 hover:border-purple-500/40 rounded-xl transition-all group">
+                            <span class="text-xl leading-none">🔷</span>
+                            <div class="min-w-0">
+                                <p class="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors">C#</p>
+                                <p class="text-[11px] text-slate-600 truncate">TestSample.cs</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <label class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-5 mb-2">Language</label>
+                <select id="file-language"
+                    class="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition">
+                    <option value="auto">🔍 Auto-detect</option>
+                    <option value="Python">🐍 Python</option>
+                    <option value="JavaScript">⚡ JavaScript</option>
+                    <option value="TypeScript">🔷 TypeScript</option>
+                    <option value="Java">☕ Java</option>
+                    <option value="C#">🔵 C#</option>
+                    <option value="Go">🐹 Go</option>
+                    <option value="Rust">⚙️ Rust</option>
+                    <option value="Ruby">💎 Ruby</option>
+                    <option value="PHP">🐘 PHP</option>
+                    <option value="Kotlin">🟣 Kotlin</option>
+                    <option value="Swift">🍎 Swift</option>
+                    <option value="C++">⚡ C++</option>
+                    <option value="SQL">🗃️ SQL</option>
+                    <option value="Shell">🖥️ Shell</option>
+                    <option value="Other">📄 Other</option>
                 </select>
             </div>
 
-            <!-- Project Tab -->
-            <div id="project" class="tab-content">
-                <label>Project folder path:</label>
-                <input type="text" id="project-path" placeholder="/path/to/project">
-                <p class="helper-text">Enter an absolute path to a project folder on this machine.</p>
-                <p class="warning-text">⚠ Only the first 20 source files will be reviewed.</p>
+            <!-- ── Project Tab ── -->
+            <div id="project" class="tab-content hidden flex-col">
+                <label class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Project Folder Path</label>
+                <input type="text" id="project-path" placeholder="/path/to/your/project"
+                    class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-sm font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition">
+
+                <p class="mt-2.5 text-xs text-slate-500 leading-relaxed">
+                    Enter an absolute path to a project folder on this machine.
+                </p>
+
+                <div class="mt-3 flex items-start gap-2.5 bg-amber-500/10 border border-amber-500/25 rounded-xl px-4 py-3">
+                    <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <p class="text-xs text-amber-400/90 leading-relaxed">Only the first 20 source files will be reviewed.</p>
+                </div>
             </div>
 
             <!-- Review Button -->
-            <button id="review-btn" class="review-btn">
-                <span class="btn-text">Review</span>
-                <span class="spinner hidden"></span>
+            <button id="review-btn"
+                class="w-full mt-6 py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-violet-600/30 hover:shadow-violet-500/40 transition-all duration-200 shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"/>
+                </svg>
+                <span class="btn-text">Run Review</span>
+                <svg id="spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
             </button>
         </div>
+    </aside>
 
-        <!-- Right Panel: Progress & Results -->
-        <div class="right-panel">
+    <!-- ═══════════════════════════════════════════════════
+         RIGHT PANEL — Light output area
+    ════════════════════════════════════════════════════ -->
+    <main class="flex-1 bg-[#f1f5f9] flex flex-col lg:h-screen lg:overflow-hidden">
+
+        <!-- Sticky top bar -->
+        <div class="shrink-0 bg-white/70 backdrop-blur-md border-b border-slate-200 px-6 py-3 flex items-center justify-between z-10">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-violet-500 animate-pulse"></div>
+                <span class="text-sm font-semibold text-slate-700">Review Output</span>
+            </div>
+            <span class="text-xs text-slate-400 hidden sm:block">Powered by AG2 multi-agent analysis</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-5 lg:p-8">
+
             <!-- Progress Strip -->
-            <div id="progress-strip" class="progress-strip hidden">
-                <div class="steps">
-                    <div class="step" data-step="Detecting Language">
-                        <div class="step-circle">1</div>
-                        <div class="step-label">Detecting Language</div>
+            <div id="progress-strip" class="hidden mb-6">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-6 pt-5 pb-3 border-b border-slate-100 flex items-center gap-3">
+                        <div class="w-5 h-5 rounded-full border-2 border-violet-500 border-t-transparent animate-spin"></div>
+                        <p class="text-sm font-semibold text-slate-700">Analysing your code…</p>
                     </div>
-                    <div class="step" data-step="Bug_Detector">
-                        <div class="step-circle">2</div>
-                        <div class="step-label">Bug Detector</div>
-                    </div>
-                    <div class="step" data-step="Style_Checker">
-                        <div class="step-circle">3</div>
-                        <div class="step-label">Style Checker</div>
-                    </div>
-                    <div class="step" data-step="Security_Auditor">
-                        <div class="step-circle">4</div>
-                        <div class="step-label">Security Auditor</div>
-                    </div>
-                    <div class="step" data-step="Summarizing">
-                        <div class="step-circle">5</div>
-                        <div class="step-label">Summarizing</div>
+                    <div class="px-6 py-5">
+                        <!-- Step track -->
+                        <div class="flex items-start gap-0">
+
+                            <div class="step flex flex-col items-center" data-step="Detecting Language">
+                                <div class="step-circle w-9 h-9 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center transition-all duration-300">
+                                    <svg class="step-icon w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                                    </svg>
+                                </div>
+                                <span class="step-label text-[10px] text-slate-400 text-center mt-2 leading-tight font-medium">Detect<br>Lang</span>
+                            </div>
+                            <div class="flex-1 mt-4 mx-1"><div class="step-connector h-0.5 bg-slate-200 rounded transition-all duration-500"></div></div>
+
+                            <div class="step flex flex-col items-center" data-step="Bug_Detector">
+                                <div class="step-circle w-9 h-9 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center transition-all duration-300">
+                                    <svg class="step-icon w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                                    </svg>
+                                </div>
+                                <span class="step-label text-[10px] text-slate-400 text-center mt-2 leading-tight font-medium">Bug<br>Detector</span>
+                            </div>
+                            <div class="flex-1 mt-4 mx-1"><div class="step-connector h-0.5 bg-slate-200 rounded transition-all duration-500"></div></div>
+
+                            <div class="step flex flex-col items-center" data-step="Style_Checker">
+                                <div class="step-circle w-9 h-9 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center transition-all duration-300">
+                                    <svg class="step-icon w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                                    </svg>
+                                </div>
+                                <span class="step-label text-[10px] text-slate-400 text-center mt-2 leading-tight font-medium">Style<br>Checker</span>
+                            </div>
+                            <div class="flex-1 mt-4 mx-1"><div class="step-connector h-0.5 bg-slate-200 rounded transition-all duration-500"></div></div>
+
+                            <div class="step flex flex-col items-center" data-step="Security_Auditor">
+                                <div class="step-circle w-9 h-9 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center transition-all duration-300">
+                                    <svg class="step-icon w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                </div>
+                                <span class="step-label text-[10px] text-slate-400 text-center mt-2 leading-tight font-medium">Security<br>Auditor</span>
+                            </div>
+                            <div class="flex-1 mt-4 mx-1"><div class="step-connector h-0.5 bg-slate-200 rounded transition-all duration-500"></div></div>
+
+                            <div class="step flex flex-col items-center" data-step="Summarizing">
+                                <div class="step-circle w-9 h-9 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center transition-all duration-300">
+                                    <svg class="step-icon w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <span class="step-label text-[10px] text-slate-400 text-center mt-2 leading-tight font-medium">Summar-<br>izing</span>
+                            </div>
+
+                        </div>
+
+                        <p id="progress-text" class="text-center text-xs text-violet-600 font-semibold mt-4 tracking-wide">Initializing...</p>
                     </div>
                 </div>
-                <p id="progress-text" class="progress-text">Initializing...</p>
             </div>
 
             <!-- Results Area -->
-            <div id="results-area" class="results-area hidden">
-                <!-- Verdict Badge -->
-                <div id="verdict-badge" class="verdict-badge"></div>
+            <div id="results-area" class="hidden">
 
-                <!-- Report -->
-                <div id="report-content" class="report-content"></div>
+                <!-- Verdict Banner -->
+                <div id="verdict-banner" class="rounded-2xl px-6 py-4 mb-5 flex items-center gap-4 border">
+                    <div id="verdict-icon" class="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0">✓</div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-widest opacity-70 mb-0.5">Verdict</p>
+                        <p id="verdict-text" class="text-lg font-bold leading-none">PASS</p>
+                    </div>
+                </div>
+
+                <!-- Report Card -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-7 mb-4">
+                    <div id="report-content" class="report-content"></div>
+                </div>
 
                 <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <button id="download-btn" class="action-btn download-btn">Download Report</button>
-                    <button id="new-review-btn" class="action-btn new-review-btn">New Review</button>
+                <div class="flex gap-3">
+                    <button id="download-btn"
+                        class="flex-1 py-2.5 px-4 bg-white border border-slate-300 hover:border-violet-400 hover:bg-violet-50 hover:text-violet-700 rounded-xl text-sm font-semibold text-slate-600 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download Report
+                    </button>
+                    <button id="new-review-btn"
+                        class="flex-1 py-2.5 px-4 bg-white border border-slate-300 hover:border-slate-400 hover:bg-slate-50 rounded-xl text-sm font-semibold text-slate-600 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        New Review
+                    </button>
                 </div>
             </div>
 
             <!-- Empty State -->
-            <div id="empty-state" class="empty-state">
-                <p>Select code, upload a file, or enter a project path to get started.</p>
+            <div id="empty-state" class="flex flex-col items-center justify-center min-h-[60vh] text-center px-8">
+                <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-500/10 to-indigo-500/10 border border-violet-500/20 flex items-center justify-center mb-5">
+                    <svg class="w-9 h-9 text-violet-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <h2 class="text-base font-bold text-slate-500 mb-2">No review yet</h2>
+                <p class="text-sm text-slate-400 max-w-xs leading-relaxed">
+                    Paste code, upload a file, or enter a project path on the left — then hit <span class="font-semibold text-violet-500">Run Review</span>.
+                </p>
+
+                <!-- Feature list -->
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-lg text-left">
+                    <div class="bg-white rounded-xl border border-slate-200 px-4 py-3.5 shadow-sm">
+                        <p class="text-sm font-bold text-slate-700 mb-1">🐛 Bug Detection</p>
+                        <p class="text-xs text-slate-400 leading-relaxed">Logical errors, null dereferences, resource leaks</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 px-4 py-3.5 shadow-sm">
+                        <p class="text-sm font-bold text-slate-700 mb-1">🎨 Style Review</p>
+                        <p class="text-xs text-slate-400 leading-relaxed">Language-specific style guides and conventions</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 px-4 py-3.5 shadow-sm">
+                        <p class="text-sm font-bold text-slate-700 mb-1">🔒 Security Audit</p>
+                        <p class="text-xs text-slate-400 leading-relaxed">OWASP vulnerabilities, injection risks, secrets</p>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <script>
-        const inlineTab = document.querySelector('[data-tab="inline"]');
-        const fileTab = document.querySelector('[data-tab="file"]');
-        const projectTab = document.querySelector('[data-tab="project"]');
+        </div><!-- /scroll -->
+    </main>
 
-        const inlineCode = document.getElementById('inline-code');
-        const inlineLanguage = document.getElementById('inline-language');
-        const fileInput = document.getElementById('file-input');
-        const fileLanguage = document.getElementById('file-language');
-        const projectPath = document.getElementById('project-path');
-        const reviewBtn = document.getElementById('review-btn');
-        const progressStrip = document.getElementById('progress-strip');
-        const progressText = document.getElementById('progress-text');
-        const resultsArea = document.getElementById('results-area');
-        const reportContent = document.getElementById('report-content');
-        const verdictBadge = document.getElementById('verdict-badge');
-        const downloadBtn = document.getElementById('download-btn');
-        const newReviewBtn = document.getElementById('new-review-btn');
-        const emptyState = document.getElementById('empty-state');
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
+</div><!-- /flex wrapper -->
 
-        let currentTab = 'inline';
-        let eventSource = null;
+<script>
+    const inlineCode        = document.getElementById('inline-code');
+    const inlineLanguage    = document.getElementById('inline-language');
+    const fileInput         = document.getElementById('file-input');
+    const fileNameDisplay   = document.getElementById('file-name-display');
+    const fileLanguage      = document.getElementById('file-language');
+    const projectPath       = document.getElementById('project-path');
+    const reviewBtn         = document.getElementById('review-btn');
+    const spinner           = document.getElementById('spinner');
+    const btnText           = document.querySelector('.btn-text');
+    const progressStrip     = document.getElementById('progress-strip');
+    const progressText      = document.getElementById('progress-text');
+    const resultsArea       = document.getElementById('results-area');
+    const reportContent     = document.getElementById('report-content');
+    const verdictBanner     = document.getElementById('verdict-banner');
+    const verdictIcon       = document.getElementById('verdict-icon');
+    const verdictText       = document.getElementById('verdict-text');
+    const downloadBtn       = document.getElementById('download-btn');
+    const newReviewBtn      = document.getElementById('new-review-btn');
+    const emptyState        = document.getElementById('empty-state');
+    const tabBtns           = document.querySelectorAll('.tab-btn');
+    const tabContents       = document.querySelectorAll('.tab-content');
 
-        // Tab switching
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                currentTab = btn.dataset.tab;
-                document.getElementById(currentTab).classList.add('active');
+    let currentTab  = 'inline';
+    let eventSource = null;
+
+    // ── File input display ──
+    fileInput.addEventListener('change', () => {
+        updateFileDisplay(fileInput.files[0]);
+    });
+
+    // ── Drag and Drop ──
+    const dropZone = document.getElementById('drop-zone');
+
+    // Click anywhere on the zone to open the file picker
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    // Prevent the file from being opened by the browser
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('border-violet-500', 'bg-violet-500/10', '!border-solid');
+        dropZone.classList.remove('border-slate-700');
+        dropZone.querySelector('.drop-icon').classList.add('text-violet-400');
+        dropZone.querySelector('.drop-icon').classList.remove('text-slate-500');
+        dropZone.querySelector('.drop-label').textContent = 'Release to drop';
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+        // Only fire when leaving the zone itself, not its children
+        if (dropZone.contains(e.relatedTarget)) return;
+        e.preventDefault();
+        resetDropZone();
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        resetDropZone();
+
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+
+        // Assign the dropped file to the hidden input via DataTransfer
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;
+
+        updateFileDisplay(file);
+    });
+
+    function updateFileDisplay(file) {
+        if (file) {
+            fileNameDisplay.textContent = `📄 ${file.name}`;
+            fileNameDisplay.className   = 'text-xs text-violet-400 mt-1 font-semibold';
+        } else {
+            fileNameDisplay.textContent = 'No file selected';
+            fileNameDisplay.className   = 'text-xs text-slate-600 mt-1';
+        }
+    }
+
+    function resetDropZone() {
+        dropZone.classList.remove('border-violet-500', 'bg-violet-500/10', '!border-solid');
+        dropZone.classList.add('border-slate-700');
+        dropZone.querySelector('.drop-icon').classList.remove('text-violet-400');
+        dropZone.querySelector('.drop-icon').classList.add('text-slate-500');
+        dropZone.querySelector('.drop-label').textContent = 'Drop a file or click to browse';
+    }
+
+    // ── Tab switching ──
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => {
+                b.classList.remove('text-white', 'bg-gradient-to-r', 'from-violet-600', 'to-indigo-600', 'shadow-md', 'shadow-violet-600/30');
+                b.classList.add('text-slate-400');
             });
+            tabContents.forEach(c => c.classList.add('hidden'));
+
+            btn.classList.add('text-white', 'bg-gradient-to-r', 'from-violet-600', 'to-indigo-600', 'shadow-md', 'shadow-violet-600/30');
+            btn.classList.remove('text-slate-400');
+            currentTab = btn.dataset.tab;
+            document.getElementById(currentTab).classList.remove('hidden');
         });
+    });
 
-        // Review button
-        reviewBtn.addEventListener('click', async () => {
-            if (currentTab === 'inline') {
-                await reviewInline();
-            } else if (currentTab === 'file') {
-                await reviewFile();
-            } else if (currentTab === 'project') {
-                await reviewProject();
-            }
-        });
+    // ── Review handlers ──
+    reviewBtn.addEventListener('click', async () => {
+        if (currentTab === 'inline')       await reviewInline();
+        else if (currentTab === 'file')    await reviewFile();
+        else if (currentTab === 'project') await reviewProject();
+    });
 
-        async function reviewInline() {
-            const code = inlineCode.value.trim();
-            if (!code) {
-                alert('Please paste some code');
-                return;
-            }
+    async function reviewInline() {
+        const code = inlineCode.value.trim();
+        if (!code) { showAlert('Please paste some code first.'); return; }
+        await runReview('/review/inline', { code, language: inlineLanguage.value });
+    }
 
-            const payload = {
-                code: code,
-                language: inlineLanguage.value
-            };
+    async function reviewFile() {
+        const file = fileInput.files[0];
+        if (!file) { showAlert('Please select a file first.'); return; }
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('language', fileLanguage.value);
+        startProgress();
+        streamProgress();
+        try {
+            const response = await fetch('/review/file', { method: 'POST', body: formData });
+            const data = await response.json();
+            if (!response.ok) { showError(data.error || 'Review failed'); return; }
+            displayResults(data);
+        } catch (err) { showError(err.message); }
+        finally { endProgress(); }
+    }
 
-            await runReview('/review/inline', payload);
-        }
+    async function reviewProject() {
+        const path = projectPath.value.trim();
+        if (!path) { showAlert('Please enter a project path first.'); return; }
+        await runReview('/review/project', { path });
+    }
 
-        async function reviewFile() {
-            const file = fileInput.files[0];
-            if (!file) {
-                alert('Please select a file');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('language', fileLanguage.value);
-
-            // Disable button and show progress
-            reviewBtn.disabled = true;
-            reviewBtn.querySelector('.btn-text').classList.add('hidden');
-            reviewBtn.querySelector('.spinner').classList.remove('hidden');
-            progressStrip.classList.remove('hidden');
-            resultsArea.classList.add('hidden');
-            emptyState.classList.add('hidden');
-            progressText.textContent = 'Initializing...';
-
-            // Stream progress
-            streamProgress();
-
-            try {
-                const response = await fetch('/review/file', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    showError(data.error || 'Review failed');
-                    return;
-                }
-
-                displayResults(data);
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                stopProgress();
-                reviewBtn.disabled = false;
-                reviewBtn.querySelector('.btn-text').classList.remove('hidden');
-                reviewBtn.querySelector('.spinner').classList.add('hidden');
-            }
-        }
-
-        async function reviewProject() {
-            const path = projectPath.value.trim();
-            if (!path) {
-                alert('Please enter a project path');
-                return;
-            }
-
-            const payload = { path: path };
-
-            await runReview('/review/project', payload);
-        }
-
-        async function runReview(endpoint, payload) {
-            // Disable button and show progress
-            reviewBtn.disabled = true;
-            reviewBtn.querySelector('.btn-text').classList.add('hidden');
-            reviewBtn.querySelector('.spinner').classList.remove('hidden');
-            progressStrip.classList.remove('hidden');
-            resultsArea.classList.add('hidden');
-            emptyState.classList.add('hidden');
-            progressText.textContent = 'Initializing...';
-
-            // Stream progress
-            streamProgress();
-
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    showError(data.error || 'Review failed');
-                    return;
-                }
-
-                displayResults(data);
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                stopProgress();
-                reviewBtn.disabled = false;
-                reviewBtn.querySelector('.btn-text').classList.remove('hidden');
-                reviewBtn.querySelector('.spinner').classList.add('hidden');
-            }
-        }
-
-        function streamProgress() {
-            if (eventSource) eventSource.close();
-
-            eventSource = new EventSource('/progress');
-
-            eventSource.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                updateProgressStrip(data);
-
-                if (data.step === 'complete') {
-                    stopProgress();
-                }
-            };
-
-            eventSource.onerror = () => {
-                stopProgress();
-            };
-        }
-
-        function stopProgress() {
-            if (eventSource) {
-                eventSource.close();
-                eventSource = null;
-            }
-        }
-
-        function updateProgressStrip(data) {
-            const { step, status } = data;
-            progressText.textContent = `${step}...`;
-
-            if (step === 'complete') {
-                progressStrip.classList.add('hidden');
-                return;
-            }
-
-            // Update step circles
-            document.querySelectorAll('.step').forEach(stepEl => {
-                const stepName = stepEl.dataset.step;
-                const circle = stepEl.querySelector('.step-circle');
-
-                if (step.includes(stepName) || step === stepName) {
-                    circle.textContent = status === 'done' ? '✓' : '⟳';
-                    stepEl.classList.add('running');
-                    if (status === 'done') {
-                        stepEl.classList.add('done');
-                    }
-                } else if (stepEl.classList.contains('done')) {
-                    // Already done
-                } else {
-                    stepEl.classList.remove('running');
-                }
+    async function runReview(endpoint, payload) {
+        startProgress();
+        streamProgress();
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
+            const data = await response.json();
+            if (!response.ok) { showError(data.error || 'Review failed'); return; }
+            displayResults(data);
+        } catch (err) { showError(err.message); }
+        finally { endProgress(); }
+    }
+
+    // ── Progress ──
+    function startProgress() {
+        reviewBtn.disabled = true;
+        btnText.classList.add('hidden');
+        spinner.classList.remove('hidden');
+        progressStrip.classList.remove('hidden');
+        resultsArea.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        progressText.textContent = 'Initializing...';
+        document.querySelectorAll('.step').forEach(s => setStepState(s, 'pending'));
+    }
+
+    function endProgress() {
+        reviewBtn.disabled = false;
+        btnText.classList.remove('hidden');
+        spinner.classList.add('hidden');
+        stopProgress();
+    }
+
+    function streamProgress() {
+        if (eventSource) eventSource.close();
+        eventSource = new EventSource('/progress');
+        eventSource.onmessage = e => {
+            const data = JSON.parse(e.data);
+            updateProgressStrip(data);
+            if (data.step === 'complete') stopProgress();
+        };
+        eventSource.onerror = () => stopProgress();
+    }
+
+    function stopProgress() {
+        if (eventSource) { eventSource.close(); eventSource = null; }
+    }
+
+    function setStepState(stepEl, state) {
+        const circle = stepEl.querySelector('.step-circle');
+        const icon   = stepEl.querySelector('.step-icon');
+        const label  = stepEl.querySelector('.step-label');
+
+        circle.className = 'step-circle w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all duration-300';
+        label.className  = 'step-label text-[10px] text-center mt-2 leading-tight font-medium transition-colors duration-300';
+
+        if (state === 'running') {
+            circle.classList.add('bg-violet-500', 'border-violet-500', 'animate-pulse');
+            icon.classList.remove('text-slate-400');
+            icon.classList.add('text-white');
+            label.classList.add('text-violet-600');
+        } else if (state === 'done') {
+            circle.classList.add('bg-emerald-500', 'border-emerald-500');
+            icon.classList.remove('text-slate-400');
+            icon.classList.add('text-white');
+            label.classList.add('text-emerald-600');
+        } else {
+            circle.classList.add('bg-slate-100', 'border-slate-200');
+            icon.classList.remove('text-white');
+            icon.classList.add('text-slate-400');
+            label.classList.add('text-slate-400');
+        }
+    }
+
+    function updateProgressStrip(data) {
+        const { step, status } = data;
+        progressText.textContent = `${step}…`;
+
+        if (step === 'complete') {
+            progressStrip.classList.add('hidden');
+            return;
         }
 
-        function displayResults(data) {
-            progressStrip.classList.add('hidden');
-            resultsArea.classList.remove('hidden');
-            emptyState.classList.add('hidden');
+        document.querySelectorAll('.step').forEach(stepEl => {
+            const stepName = stepEl.dataset.step;
+            const isMatch  = step.includes(stepName) || step === stepName;
+            const circle   = stepEl.querySelector('.step-circle');
+            const isDone   = circle.classList.contains('bg-emerald-500');
 
-            // Render markdown
-            const html = marked.parse(data.report);
-            reportContent.innerHTML = html;
-
-            // Display verdict badge
-            const verdict = data.verdict;
-            let verdictClass = 'pass';
-            let verdictText = '🟢 PASS';
-
-            if (verdict === 'PASS WITH NOTES') {
-                verdictClass = 'pass-with-notes';
-                verdictText = '🟡 PASS WITH NOTES';
-            } else if (verdict === 'NEEDS REVISION') {
-                verdictClass = 'needs-revision';
-                verdictText = '🔴 NEEDS REVISION';
+            if (isMatch) {
+                setStepState(stepEl, status === 'done' ? 'done' : 'running');
+            } else if (!isDone) {
+                // leave pending
             }
-
-            verdictBadge.className = `verdict-badge ${verdictClass}`;
-            verdictBadge.textContent = verdictText;
-        }
-
-        function showError(message) {
-            alert(`Error: ${message}`);
-            progressStrip.classList.add('hidden');
-            resultsArea.classList.add('hidden');
-            emptyState.classList.remove('hidden');
-        }
-
-        // Download button
-        downloadBtn.addEventListener('click', () => {
-            window.location.href = '/download';
         });
+    }
 
-        // New review button
-        newReviewBtn.addEventListener('click', () => {
-            inlineCode.value = '';
-            fileInput.value = '';
-            projectPath.value = '';
-            inlineLanguage.value = 'auto';
-            fileLanguage.value = 'auto';
-            resultsArea.classList.add('hidden');
-            progressStrip.classList.add('hidden');
-            emptyState.classList.remove('hidden');
-            tabBtns[0].click();
-        });
-    </script>
+    // ── Results ──
+    function displayResults(data) {
+        progressStrip.classList.add('hidden');
+        resultsArea.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+
+        reportContent.innerHTML = marked.parse(data.report || '');
+
+        const verdict = data.verdict || 'PASS';
+        // Reset banner classes
+        verdictBanner.className = 'rounded-2xl px-6 py-4 mb-5 flex items-center gap-4 border';
+        verdictIcon.className   = 'w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 font-bold';
+
+        if (verdict === 'NEEDS REVISION') {
+            verdictBanner.classList.add('bg-rose-50', 'border-rose-200');
+            verdictIcon.classList.add('bg-rose-100', 'text-rose-600');
+            verdictIcon.textContent = '✗';
+            verdictText.className = 'text-lg font-bold text-rose-700 leading-none';
+            verdictText.textContent = 'NEEDS REVISION';
+        } else if (verdict === 'PASS WITH NOTES') {
+            verdictBanner.classList.add('bg-amber-50', 'border-amber-200');
+            verdictIcon.classList.add('bg-amber-100', 'text-amber-600');
+            verdictIcon.textContent = '!';
+            verdictText.className = 'text-lg font-bold text-amber-700 leading-none';
+            verdictText.textContent = 'PASS WITH NOTES';
+        } else {
+            verdictBanner.classList.add('bg-emerald-50', 'border-emerald-200');
+            verdictIcon.classList.add('bg-emerald-100', 'text-emerald-600');
+            verdictIcon.textContent = '✓';
+            verdictText.className = 'text-lg font-bold text-emerald-700 leading-none';
+            verdictText.textContent = 'PASS';
+        }
+    }
+
+    function showError(message) {
+        showAlert(`Error: ${message}`);
+        progressStrip.classList.add('hidden');
+        resultsArea.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+    }
+
+    function showAlert(msg) {
+        // Minimal non-blocking toast
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm px-5 py-3 rounded-xl shadow-xl z-50 border border-slate-700 font-medium';
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+
+    downloadBtn.addEventListener('click', () => { window.location.href = '/download'; });
+
+    newReviewBtn.addEventListener('click', () => {
+        inlineCode.value          = '';
+        fileInput.value           = '';
+        fileNameDisplay.textContent = 'No file selected';
+        fileNameDisplay.className = 'text-xs text-slate-600 mt-1';
+        projectPath.value         = '';
+        inlineLanguage.value      = 'auto';
+        fileLanguage.value        = 'auto';
+        resultsArea.classList.add('hidden');
+        progressStrip.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        tabBtns[0].click();
+    });
+</script>
 </body>
 </html>
