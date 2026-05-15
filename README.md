@@ -66,7 +66,7 @@ cp .env.example .env
 Set these values in `.env`:
 
 ```env
-LLM_BASE_URL=your_base_url_here
+LLM_BASE_URL=https://5f5832nb90.execute-api.eu-central-1.amazonaws.com/v1
 ```
 
 The model and API key are defined in code:
