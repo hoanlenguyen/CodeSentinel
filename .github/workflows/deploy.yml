@@ -21,8 +21,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: codesentinel-ai-review
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+      - name: Zip application
+        run: |
+          zip -r app.zip . \
+            --exclude "*.git*" \
+            --exclude "__pycache__/*" \
+            --exclude "*.pyc" \
+            --exclude ".env" \
+            --exclude "review_output.md" \
+            --exclude "app.zip"
+
+      - name: Deploy via Kudu ZIP deploy
+        run: |
+          curl -X POST \
+            "https://codesentinel-ai-review.scm.azurewebsites.net/api/zipdeploy" \
+            -u "${{ secrets.AZURE_DEPLOY_USER }}:${{ secrets.AZURE_DEPLOY_PASS }}" \
+            -H "Content-Type: application/zip" \
+            --data-binary @app.zip \
+            --fail \
+            --silent \
+            --show-error
+          echo "Deployment complete ✓"
