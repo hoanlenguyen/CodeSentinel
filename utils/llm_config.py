@@ -7,7 +7,7 @@ load_dotenv(override=True)
 
 
 LLM_API_KEY = os.getenv("LLM_API_KEY")
-LLM_MODEL = os.getenv("LLM_MODEL", "google/gemini-2.0-flash-exp:free")
+LLM_MODEL = os.getenv("LLM_MODEL", "openai/gpt-oss-120b:free")
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://openrouter.ai/api/v1")
 
 if not LLM_API_KEY:
