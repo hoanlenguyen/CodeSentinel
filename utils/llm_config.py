@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 
-LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
 LLM_API_KEY = os.getenv("LLM_API_KEY")
 
 if not LLM_API_KEY:
