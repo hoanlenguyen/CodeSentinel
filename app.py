@@ -58,7 +58,7 @@ def speaker_selection_func(last_speaker, groupchat):
 
 
 def run_single_review(filepath, content, language):
-    """Run the full 5-agent GroupChat for a single file."""
+    """Run the full 5-agent GroupChat for a single file. Returns the report text."""
     progress_queue.put({"step": "Bug_Detector", "status": "running"})
 
     user_proxy = create_user_proxy()
@@ -86,7 +86,26 @@ def run_single_review(filepath, content, language):
     message = make_review_message(filepath, content, language)
     user_proxy.initiate_chat(manager, message=message, silent=True)
 
+    # Extract report directly from Summarizer's last message (avoids stale file reads)
+    report = ""
+    for msg in reversed(groupchat.messages):
+        if msg.get("name") == "Summarizer" and msg.get("content"):
+            content_text = msg["content"]
+            if "REVIEW COMPLETE" in content_text:
+                continue
+            if "## " in content_text:
+                report = content_text
+                break
+
+    # Fallback: read from saved file
+    if not report and os.path.exists("review_output.md"):
+        with open("review_output.md", "r", encoding="utf-8") as f:
+            report = f.read()
+        if report.startswith("# CodeSentinel Review Report\n\n"):
+            report = report[len("# CodeSentinel Review Report\n\n"):]
+
     progress_queue.put({"step": "complete", "status": "done"})
+    return report
 
 
 def run_project_review(files):
@@ -184,14 +203,21 @@ def run_project_review(files):
 
 
 def extract_verdict(report):
-    """Extract verdict from the report (PASS, PASS WITH NOTES, NEEDS REVISION)."""
+    """Extract verdict from the report using exact verdict-line matching to avoid false positives."""
+    import re
+    # Match only the verdict line, not arbitrary occurrences of the word
+    if re.search(r'##\s*Verdict\s*:?\s*NEEDS REVISION', report, re.IGNORECASE):
+        return "NEEDS REVISION"
+    if re.search(r'##\s*Verdict\s*:?\s*PASS WITH NOTES', report, re.IGNORECASE):
+        return "PASS WITH NOTES"
+    if re.search(r'##\s*Verdict\s*:?\s*PASS\b', report, re.IGNORECASE):
+        return "PASS"
+    # Fallback: scan for standalone verdict keywords
     report_upper = report.upper()
     if "NEEDS REVISION" in report_upper:
         return "NEEDS REVISION"
-    elif "PASS WITH NOTES" in report_upper:
+    if "PASS WITH NOTES" in report_upper:
         return "PASS WITH NOTES"
-    elif "PASS" in report_upper:
-        return "PASS"
     return "UNKNOWN"
 
 
@@ -220,18 +246,7 @@ def review_inline():
 
         progress_queue.put({"step": "Detecting Language", "status": "done"})
 
-        run_single_review("Inline snippet", code, language)
-
-        # Read the report
-        if os.path.exists("review_output.md"):
-            with open("review_output.md", "r", encoding="utf-8") as f:
-                report = f.read()
-                # Remove the prepended header
-                if report.startswith("# CodeSentinel Review Report\n\n"):
-                    report = report[len("# CodeSentinel Review Report\n\n"):]
-        else:
-            report = ""
-
+        report = run_single_review("Inline snippet", code, language)
         verdict = extract_verdict(report)
 
         return jsonify({
@@ -277,16 +292,7 @@ def review_file():
 
             progress_queue.put({"step": "Detecting Language", "status": "done"})
 
-            run_single_review(file.filename, content, language)
-
-            if os.path.exists("review_output.md"):
-                with open("review_output.md", "r", encoding="utf-8") as f:
-                    report = f.read()
-                    if report.startswith("# CodeSentinel Review Report\n\n"):
-                        report = report[len("# CodeSentinel Review Report\n\n"):]
-            else:
-                report = ""
-
+            report = run_single_review(file.filename, content, language)
             verdict = extract_verdict(report)
 
             return jsonify({
